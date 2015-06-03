@@ -165,8 +165,11 @@ class ProxyHandler(SocketServer.StreamRequestHandler):
         if not self.doRequest(conn, "GET", req.getPath(), '', req.headers): return ''
         # Delegate response to plugin
         res = self._getresponse(conn)
-        res = ProxyPlugin.delegate(ProxyPlugin.EVENT_MANGLE_RESPONSE, res.clone())
-        data = res.serialize()
+        if res is not None:
+            res = ProxyPlugin.delegate(ProxyPlugin.EVENT_MANGLE_RESPONSE, res.clone())
+            data = res.serialize()
+        else:
+            data = HTTPMessage.EOL
         return data
 
     def doPOST(self, host, port, req):
